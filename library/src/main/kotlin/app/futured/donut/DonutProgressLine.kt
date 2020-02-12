@@ -1,12 +1,6 @@
 package app.futured.donut
 
-import android.graphics.Canvas
-import android.graphics.ComposePathEffect
-import android.graphics.CornerPathEffect
-import android.graphics.DashPathEffect
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.PathMeasure
+import android.graphics.*
 import kotlin.math.ceil
 
 internal class DonutProgressLine(
@@ -17,7 +11,8 @@ internal class DonutProgressLine(
     masterProgress: Float,
     length: Float,
     gapWidthDegrees: Float,
-    gapAngleDegrees: Float
+    gapAngleDegrees: Float,
+    lineStrokeCap: DonutLineStrokeCap
 ) {
 
     companion object {
@@ -78,6 +73,15 @@ internal class DonutProgressLine(
             updatePathEffect()
         }
 
+    var mLineStrokeCap = DonutLineStrokeCap.ROUND
+        set(value) {
+            field = value
+            paint.strokeCap = when (value) {
+                DonutLineStrokeCap.ROUND -> Paint.Cap.ROUND
+                DonutLineStrokeCap.BUTT -> Paint.Cap.BUTT
+            }
+        }
+
     init {
         this.mRadius = radius
         this.mLineColor = lineColor
@@ -86,6 +90,7 @@ internal class DonutProgressLine(
         this.mLength = length
         this.mGapWidthDegrees = gapWidthDegrees
         this.mGapAngleDegrees = gapAngleDegrees
+        this.mLineStrokeCap = lineStrokeCap
     }
 
     private fun createPath(): Path {

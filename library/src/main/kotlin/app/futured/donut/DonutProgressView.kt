@@ -19,6 +19,11 @@ import androidx.core.content.res.use
 import app.futured.donut.extensions.hasDuplicatesBy
 import app.futured.donut.extensions.sumByFloat
 
+// TODO Stroke cap
+// - xml attr 👍
+// - sample
+// - readme
+
 class DonutProgressView @JvmOverloads constructor(
     context: Context,
     private val attrs: AttributeSet? = null,
@@ -34,6 +39,7 @@ class DonutProgressView @JvmOverloads constructor(
         private const val DEFAULT_GAP_WIDTH = 45f
         private const val DEFAULT_GAP_ANGLE = 90f
         private const val DEFAULT_CAP = 1f
+        private val DEFAULT_LINE_STROKE_CAP = DonutLineStrokeCap.ROUND
         private val DEFAULT_BG_COLOR_RES = R.color.grey
 
         private const val DEFAULT_ANIM_ENABLED = true
@@ -128,6 +134,18 @@ class DonutProgressView @JvmOverloads constructor(
         }
 
     /**
+     * Style of progress line stroke cap. There are currently supported only two types,
+     * [DonutLineStrokeCap.ROUND] and [DonutLineStrokeCap.BUTT]
+     */
+    var lineStrokeCap: DonutLineStrokeCap = DEFAULT_LINE_STROKE_CAP
+        set(value) {
+            field = value
+            bgLine.mLineStrokeCap = value
+            lines.forEach { it.mLineStrokeCap = value }
+            invalidate()
+        }
+
+    /**
      * If true, view will animate changes when new data is submitted.
      * If false, state change will happen instantly.
      */
@@ -155,7 +173,8 @@ class DonutProgressView @JvmOverloads constructor(
         masterProgress = masterProgress,
         length = 1f,
         gapWidthDegrees = gapWidthDegrees,
-        gapAngleDegrees = gapAngleDegrees
+        gapAngleDegrees = gapAngleDegrees,
+        lineStrokeCap = lineStrokeCap
     )
 
     init {
@@ -186,8 +205,15 @@ class DonutProgressView @JvmOverloads constructor(
 
             gapWidthDegrees =
                 it.getFloat(R.styleable.DonutProgressView_donut_gapWidth, DEFAULT_GAP_WIDTH)
+
             gapAngleDegrees =
                 it.getFloat(R.styleable.DonutProgressView_donut_gapAngle, DEFAULT_GAP_ANGLE)
+
+            lineStrokeCap = it
+                .getInt(R.styleable.DonutProgressView_donut_line_stroke_cap, DEFAULT_LINE_STROKE_CAP.ordinal)
+                .let { ordinal ->
+                    DonutLineStrokeCap.values()[ordinal]
+                }
 
             animateChanges = it.getBoolean(
                 R.styleable.DonutProgressView_donut_animateChanges,
@@ -242,7 +268,8 @@ class DonutProgressView @JvmOverloads constructor(
                             masterProgress = masterProgress,
                             length = 0f,
                             gapWidthDegrees = gapWidthDegrees,
-                            gapAngleDegrees = gapAngleDegrees
+                            gapAngleDegrees = gapAngleDegrees,
+                            lineStrokeCap = lineStrokeCap
                         )
                     )
                 } else {
